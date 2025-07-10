@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'models/habit.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class HabitTrackerApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: const HomePage(),
+      home: const HomePage(), 
     );
   }
 }
@@ -29,20 +30,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Habit> _habits = [];
+  late Box<Habit> habitBox;
+  List<Habit> get habits => habitBox.values.toList();
   final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    habitBox = Hive.box<Habit>('habitsBox');
+  }
 
   void _addHabit() {
     final name = _controller.text.trim();
     if (name.isEmpty) return;
 
-    setState(() {
-      _habits.add(Habit(
-        name: name, 
-        createdAt: DateTime.now().toString(),
-      ));
-      _controller.clear();
-    });
+    final habit = Habit(name: name, createdAt: DateTime.now());
+    habitBox.add(habit);
+    _controller.clear();
+    setState( () {});
   }
 
   @override
@@ -72,12 +77,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
-                itemCount: _habits.length,
+                itemCount: habits.length,
                 itemBuilder: (context, index) {
-                  final habit = _habits[index];
+                  final habit = habits[index];
                   return ListTile(
                     title: Text(habit.name),
-                    subtitle: Text('Created: ${habit.createdAt}'),
+                    subtitle: Text('Created: ${habit.createdAt.toLocal()}'),
                     trailing: IconButton(
                       icon: Icon(
                         habit.isCompleted
