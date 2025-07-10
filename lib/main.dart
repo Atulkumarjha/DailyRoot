@@ -76,32 +76,42 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: habits.length,
-                itemBuilder: (context, index) {
-                  final habit = habits[index];
-                  return ListTile(
-                    title: Text(habit.name),
-                    subtitle: Text('Created: ${habit.createdAt.toLocal()}'),
-                    trailing: IconButton(
-                      icon: Icon(
-                        habit.isCompleted
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          habit.isCompleted = !habit.isCompleted;
-                        });
-                      },
-                    ),
-                  );
-                },
+    child: ListView.builder(
+      itemCount: habits.length,
+      itemBuilder: (context, index) {
+        final habit = habits[index];
+
+        return Dismissible(
+          key: Key(habit.key.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (direction) {
+            habit.delete();
+            setState(() {});
+          },
+          child: ListTile(
+            title: Text(habit.name),
+            subtitle: Text('Created: ${habit.createdAt.toLocal().toString().split('.')[0]}'),
+            trailing: IconButton(
+              icon: Icon(
+                habit.isCompleted
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank,
               ),
+              onPressed: () {
+                final updatedHabit = habits[index];
+                updatedHabit.isCompleted = !updatedHabit.isCompleted;
+                updatedHabit.save();
+                setState(() {});
+              },
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+          ),
+        );
+      },
+    ),
+  ),
