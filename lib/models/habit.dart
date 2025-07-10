@@ -13,9 +13,13 @@ class Habit extends HiveObject {
   @HiveField(2)
   bool isCompleted;
 
+  @HiveField(3)
+  List <String> completedDates;
+
   Habit({
     required this.name,
     required this.createdAt,
     this.isCompleted = false,
-  });
+    List<String> completedDates = [],
+  }) : completedDates = completedDates;
 }
